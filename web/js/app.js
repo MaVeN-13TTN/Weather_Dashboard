@@ -142,9 +142,12 @@ function displayForecast(data, unit) {
   const forecastCards = document.getElementById("forecast-cards");
   forecastCards.innerHTML = "";
 
-  const dailyForecasts = data.list.filter((item) =>
-    item.dt_txt.includes("12:00:00")
-  );
+  const dailyForecasts = data.list.filter((item, index) => index % 8 === 0);
+
+  if (dailyForecasts.length === 0) {
+    console.error("No forecast data available");
+    return;
+  }
 
   dailyForecasts.forEach((day) => {
     const date = new Date(day.dt * 1000);
@@ -152,6 +155,7 @@ function displayForecast(data, unit) {
     forecastCards.appendChild(card);
   });
 
+  initializeCarousel();
   animateForecastCards();
 }
 
@@ -160,11 +164,52 @@ function createForecastCard(date, day, tempUnit) {
   card.className = "forecast-card";
   card.innerHTML = `
       <h3>${date.toLocaleDateString("en-US", { weekday: "short" })}</h3>
+      <p>${date.toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+      })}</p>
       <i class="fas fa-${getWeatherIcon(day.weather[0].id)}"></i>
       <p>${day.main.temp.toFixed(1)}${tempUnit}</p>
       <p>${day.weather[0].description}</p>
   `;
   return card;
+}
+
+function initializeCarousel() {
+  const carousel = document.getElementById("forecast-cards");
+  const prevBtn = document.querySelector(".carousel-prev");
+  const nextBtn = document.querySelector(".carousel-next");
+  let currentIndex = 0;
+
+  function updateCarousel() {
+    const cardWidth = carousel.children[0].offsetWidth;
+    const maxTranslate = (carousel.children.length - 1) * cardWidth;
+    const translate = Math.min(currentIndex * cardWidth, maxTranslate);
+    carousel.style.transform = `translateX(-${translate}px)`;
+  }
+
+  function showPrevCard() {
+    if (currentIndex > 0) {
+      currentIndex--;
+      updateCarousel();
+    }
+  }
+
+  function showNextCard() {
+    if (currentIndex < carousel.children.length - 1) {
+      currentIndex++;
+      updateCarousel();
+    }
+  }
+
+  prevBtn.addEventListener("click", showPrevCard);
+  nextBtn.addEventListener("click", showNextCard);
+
+  // Initial update
+  updateCarousel();
+
+  // Update on window resize
+  window.addEventListener("resize", updateCarousel);
 }
 
 function getWeatherIcon(weatherId) {
@@ -175,25 +220,32 @@ function getWeatherIcon(weatherId) {
 // Chart creation
 function createCharts(data, unit) {
   const tempUnit = unit === "metric" ? "°C" : "°F";
-  const [temperatures, humidity] = processChartData(data);
+  const currentDayData = data.list.slice(0, 8);
+  const [temperatures, humidity] = processCurrentDayData(currentDayData);
 
   createChart(
     "temp-chart",
     `Temperature (${tempUnit})`,
     temperatures,
-    "#00f3ff",
+    "--pink-lavender",
     tempUnit
   );
-  createChart("humidity-chart", "Humidity (%)", humidity, "#ff00ff", "%");
+  createChart(
+    "humidity-chart",
+    "Humidity (%)",
+    humidity,
+    "--non-photo-blue",
+    "%"
+  );
 }
 
-function processChartData(data) {
+function processCurrentDayData(data) {
   return [
-    data.list.map((item) => ({
+    data.map((item) => ({
       x: new Date(item.dt * 1000),
       y: item.main.temp,
     })),
-    data.list.map((item) => ({
+    data.map((item) => ({
       x: new Date(item.dt * 1000),
       y: item.main.humidity,
     })),
@@ -207,7 +259,12 @@ function createChart(canvasId, label, data, color, unit) {
     window[canvasId].destroy();
   }
 
-  const gradientFill = createGradient(ctx, color);
+  // Extract the color value from the CSS variable
+  const computedColor = getComputedStyle(document.documentElement)
+    .getPropertyValue(color)
+    .trim();
+
+  const gradientFill = createGradient(ctx, computedColor);
 
   window[canvasId] = new Chart(ctx, {
     type: "line",
@@ -216,10 +273,10 @@ function createChart(canvasId, label, data, color, unit) {
         {
           label: label,
           data: data,
-          borderColor: color,
+          borderColor: computedColor,
           backgroundColor: gradientFill,
           borderWidth: 2,
-          pointBackgroundColor: color,
+          pointBackgroundColor: computedColor,
           pointBorderColor: "#fff",
           pointRadius: 4,
           pointHoverRadius: 6,
@@ -240,8 +297,8 @@ function createChart(canvasId, label, data, color, unit) {
 
 function createGradient(ctx, color) {
   const gradient = ctx.createLinearGradient(0, 0, 0, 400);
-  gradient.addColorStop(0, color.replace("ff", "66")); // 40% opacity
-  gradient.addColorStop(1, color.replace("ff", "00")); // 0% opacity
+  gradient.addColorStop(0, color.replace(/[\d\.]+\)$/g, "0.4)")); // 40% opacity
+  gradient.addColorStop(1, color.replace(/[\d\.]+\)$/g, "0)")); // 0% opacity
   return gradient;
 }
 
@@ -285,12 +342,12 @@ function createTimeScale() {
   return {
     type: "time",
     time: {
-      unit: "day",
-      displayFormats: { day: "MMM D" },
+      unit: "hour",
+      displayFormats: { hour: "HH:mm" },
     },
     title: {
       display: true,
-      text: "Date",
+      text: "Time",
       color: "#ffffff",
       font: { size: 14, weight: "bold" },
     },
@@ -298,7 +355,7 @@ function createTimeScale() {
       color: "#ffffff",
       maxRotation: 0,
       autoSkip: true,
-      maxTicksLimit: 5,
+      maxTicksLimit: 6,
     },
     grid: {
       color: "rgba(255, 255, 255, 0.1)",

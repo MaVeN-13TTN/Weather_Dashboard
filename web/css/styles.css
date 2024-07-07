@@ -132,27 +132,69 @@ header {
     -webkit-text-fill-color: transparent;
 }
 
+/* Forecast Carousel Styles */
+.forecast-carousel {
+    position: relative;
+    padding: 0 50px;
+    overflow: hidden;
+}
+
+.forecast-container {
+    overflow: hidden;
+    margin: 0 -10px; /* Counteract card margins */
+}
+
 #forecast-cards {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 1rem;
+    display: flex;
+    transition: transform 0.5s ease;
 }
 
 .forecast-card {
-    text-align: center;
+    flex: 0 0 calc(20% - 20px); /* 20% width for 5 visible cards */
+    margin: 0 10px;
     padding: 1rem;
     border-radius: 10px;
     background: var(--glass-bg);
-    transition: all 0.3s ease;
+    transition: all 0.5s ease;
+    transform-style: preserve-3d;
+    perspective: 1000px;
 }
 
-.forecast-card i {
-    font-size: 2rem;
-    margin: 0.5rem 0;
-    background: linear-gradient(45deg, var(--pink-lavender), var(--tea-rose-red));
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
+.carousel-prev,
+.carousel-next {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: var(--glass-bg);
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    z-index: 10;
+}
+
+.carousel-prev {
+    left: 5px;
+}
+
+.carousel-next {
+    right: 5px;
+}
+
+.carousel-prev:hover,
+.carousel-next:hover {
+    background: var(--aquamarine);
+}
+
+.carousel-prev i,
+.carousel-next i {
+    color: var(--text-color);
+    font-size: 1.2rem;
 }
 
 .chart-container {
@@ -184,6 +226,28 @@ footer {
     margin-bottom: 1rem;
 }
 
+/* Tiny Slider Overrides */
+.tns-outer {
+    position: relative;
+}
+
+.tns-controls {
+    display: none;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+    .forecast-card {
+        flex: 0 0 calc(25% - 20px); /* 25% width for 4 visible cards */
+    }
+}
+
+@media (max-width: 992px) {
+    .forecast-card {
+        flex: 0 0 calc(33.333% - 20px); /* 33.333% width for 3 visible cards */
+    }
+}
+
 @media (max-width: 768px) {
     .container {
         padding: 10px;
@@ -208,5 +272,34 @@ footer {
         margin-top: 0.5rem;
         width: 100%;
         text-align: center;
+    }
+
+    .forecast-card {
+        flex: 0 0 calc(50% - 20px); /* 50% width for 2 visible cards */
+        max-width: none;
+    }
+
+    .forecast-carousel {
+        padding: 0 40px;
+    }
+
+    .carousel-prev,
+    .carousel-next {
+        width: 30px;
+        height: 30px;
+    }
+}
+
+@media (max-width: 480px) {
+    header {
+        font-size: 1.5rem;
+    }
+
+    .glass-panel {
+        padding: 1rem;
+    }
+
+    .forecast-card {
+        flex: 0 0 calc(100% - 20px); /* 100% width for 1 visible card */
     }
 }

@@ -13,6 +13,7 @@ weather_env/
 
 # Sensitive information
 .env
+config.js
 
 # Logs
 *.log
