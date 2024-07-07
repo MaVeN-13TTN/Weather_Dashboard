@@ -3,8 +3,9 @@ Tests for the scheduled weather update SMS script.
 """
 
 import unittest
-from unittest.mock import patch
+from unittest.mock import patch, Mock
 from daily_weather_text import get_weather, send_weather_sms
+from requests.exceptions import RequestException
 
 
 class WeatherSMSTests(unittest.TestCase):
@@ -14,8 +15,7 @@ class WeatherSMSTests(unittest.TestCase):
     def test_get_weather_success(self, mock_get):
         """Test get_weather function with a successful API response."""
         # Mock the API response
-        mock_response = unittest.mock.Mock()
-        mock_response.raise_for_status.return_value = None
+        mock_response = Mock()
         mock_response.json.return_value = {
             "main": {"temp": 25.5, "feels_like": 26, "humidity": 70},
             "weather": [{"description": "clear sky"}],
@@ -34,7 +34,7 @@ class WeatherSMSTests(unittest.TestCase):
     def test_get_weather_failure(self, mock_get):
         """Test get_weather function with a failed API response."""
         # Mock the API response to raise an exception
-        mock_get.side_effect = Exception("API request failed")
+        mock_get.side_effect = RequestException("API request failed")
 
         # Call the function and check the result
         weather_message = get_weather()
@@ -44,7 +44,7 @@ class WeatherSMSTests(unittest.TestCase):
     def test_send_weather_sms_success(self, mock_client):
         """Test send_weather_sms function with a successful SMS send."""
         # Mock the Twilio client and message creation
-        mock_message = unittest.mock.Mock()
+        mock_message = Mock()
         mock_message.sid = "SM1234567890"
         mock_client.return_value.messages.create.return_value = mock_message
 
