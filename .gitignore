@@ -12,7 +12,7 @@ weather_env/
 .idea/
 
 # Sensitive information
-.env
+scripts/.env
 config.js
 
 # Logs
