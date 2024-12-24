@@ -103,10 +103,17 @@ async function getWeather() {
 }
 
 async function fetchWeatherData(type, city, unit) {
-  const response = await fetch(
-    `https://api.openweathermap.org/data/2.5/${type}?q=${city}&appid=${weatherDashboardConfig.OWM_API_KEY}&units=${unit}`
-  );
-  return response.json();
+  try {
+    const response = await fetch(
+      `https://api.openweathermap.org/data/2.5/${type}?q=${city}&appid=${weatherDashboardConfig.OWM_API_KEY}&units=${unit}&cnt=40`
+    );
+    const data = await response.json();
+    console.log(`API Response for ${type}:`, data);
+    return data;
+  } catch (error) {
+    console.error('Error fetching weather data:', error);
+    throw error;
+  }
 }
 
 function displayCurrentWeather(data, unit) {
@@ -142,16 +149,39 @@ function displayForecast(data, unit) {
   const forecastCards = document.getElementById("forecast-cards");
   forecastCards.innerHTML = "";
 
-  const dailyForecasts = data.list.filter((item, index) => index % 8 === 0);
+  // Process the forecast data
+  const processedForecasts = data.list.map(item => ({
+    ...item,
+    date: new Date(item.dt * 1000)
+  }));
 
-  if (dailyForecasts.length === 0) {
+  // Group forecasts by day
+  const dailyForecasts = processedForecasts.reduce((acc, forecast) => {
+    const dayKey = forecast.date.toDateString();
+    if (!acc[dayKey] || Math.abs(forecast.date.getHours() - 12) < Math.abs(acc[dayKey].date.getHours() - 12)) {
+      acc[dayKey] = forecast;
+    }
+    return acc;
+  }, {});
+
+  // Convert to array, sort by date, and take 5 days
+  const forecasts = Object.values(dailyForecasts)
+    .sort((a, b) => a.date - b.date)
+    .slice(0, 5);
+
+  console.log('Final forecasts:', forecasts.map(f => ({
+    date: f.date.toDateString(),
+    time: f.date.toTimeString(),
+    temp: f.main.temp
+  })));
+
+  if (forecasts.length === 0) {
     console.error("No forecast data available");
     return;
   }
 
-  dailyForecasts.forEach((day) => {
-    const date = new Date(day.dt * 1000);
-    const card = createForecastCard(date, day, tempUnit);
+  forecasts.forEach((forecast) => {
+    const card = createForecastCard(forecast.date, forecast, tempUnit);
     forecastCards.appendChild(card);
   });
 
@@ -177,39 +207,130 @@ function createForecastCard(date, day, tempUnit) {
 
 function initializeCarousel() {
   const carousel = document.getElementById("forecast-cards");
+  const cards = carousel.getElementsByClassName("forecast-card");
   const prevBtn = document.querySelector(".carousel-prev");
   const nextBtn = document.querySelector(".carousel-next");
   let currentIndex = 0;
+  let startX, isDragging = false, currentTranslate = 0, prevTranslate = 0;
 
-  function updateCarousel() {
-    const cardWidth = carousel.children[0].offsetWidth;
-    const maxTranslate = (carousel.children.length - 1) * cardWidth;
+  // Set initial active state
+  updateActiveStates();
+
+  function updateActiveStates() {
+    Array.from(cards).forEach((card, index) => {
+      card.classList.toggle('active', index === currentIndex);
+    });
+  }
+
+  function updateCarousel(smooth = true) {
+    const cardWidth = cards[0].offsetWidth + 20; // Including gap
+    const maxTranslate = (cards.length - 1) * cardWidth;
     const translate = Math.min(currentIndex * cardWidth, maxTranslate);
+    
+    carousel.style.transition = smooth ? 'transform 0.3s ease-out' : 'none';
     carousel.style.transform = `translateX(-${translate}px)`;
+    updateActiveStates();
   }
 
   function showPrevCard() {
     if (currentIndex > 0) {
       currentIndex--;
       updateCarousel();
+    } else {
+      // Bounce effect when at the start
+      carousel.style.transform = 'translateX(20px)';
+      setTimeout(() => {
+        carousel.style.transform = 'translateX(0)';
+      }, 150);
     }
   }
 
   function showNextCard() {
-    if (currentIndex < carousel.children.length - 1) {
+    if (currentIndex < cards.length - 1) {
       currentIndex++;
       updateCarousel();
+    } else {
+      // Bounce effect when at the end
+      const currentTransform = -(cards.length - 1) * (cards[0].offsetWidth + 20);
+      carousel.style.transform = `translateX(${currentTransform - 20}px)`;
+      setTimeout(() => {
+        carousel.style.transform = `translateX(${currentTransform}px)`;
+      }, 150);
     }
   }
 
+  // Touch and mouse event handlers
+  function handleStart(event) {
+    isDragging = true;
+    startX = event.type.includes('mouse') ? event.pageX : event.touches[0].pageX;
+    prevTranslate = currentTranslate;
+    carousel.style.transition = 'none';
+  }
+
+  function handleMove(event) {
+    if (!isDragging) return;
+    
+    const currentX = event.type.includes('mouse') ? event.pageX : event.touches[0].pageX;
+    const diff = currentX - startX;
+    currentTranslate = prevTranslate + diff;
+    
+    // Add resistance at the edges
+    if (currentTranslate > 0) {
+      currentTranslate = currentTranslate / 3;
+    } else if (currentTranslate < -(cards.length - 1) * (cards[0].offsetWidth + 20)) {
+      const overScroll = currentTranslate + (cards.length - 1) * (cards[0].offsetWidth + 20);
+      currentTranslate = -(cards.length - 1) * (cards[0].offsetWidth + 20) + overScroll / 3;
+    }
+    
+    carousel.style.transform = `translateX(${currentTranslate}px)`;
+  }
+
+  function handleEnd() {
+    isDragging = false;
+    const cardWidth = cards[0].offsetWidth + 20;
+    const threshold = cardWidth / 3;
+    const diff = currentTranslate - prevTranslate;
+    
+    if (Math.abs(diff) > threshold) {
+      if (diff > 0) {
+        currentIndex = Math.max(currentIndex - 1, 0);
+      } else {
+        currentIndex = Math.min(currentIndex + 1, cards.length - 1);
+      }
+    }
+    
+    updateCarousel();
+  }
+
+  // Event listeners
   prevBtn.addEventListener("click", showPrevCard);
   nextBtn.addEventListener("click", showNextCard);
 
-  // Initial update
-  updateCarousel();
+  // Touch events
+  carousel.addEventListener('touchstart', handleStart);
+  carousel.addEventListener('touchmove', handleMove);
+  carousel.addEventListener('touchend', handleEnd);
+
+  // Mouse events
+  carousel.addEventListener('mousedown', handleStart);
+  carousel.addEventListener('mousemove', handleMove);
+  carousel.addEventListener('mouseup', handleEnd);
+  carousel.addEventListener('mouseleave', handleEnd);
+
+  // Prevent context menu on long press
+  carousel.addEventListener('contextmenu', e => e.preventDefault());
 
   // Update on window resize
-  window.addEventListener("resize", updateCarousel);
+  let resizeTimeout;
+  window.addEventListener("resize", () => {
+    clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(() => {
+      updateCarousel(false);
+    }, 100);
+  });
+
+  // Initial update
+  updateCarousel(false);
 }
 
 function getWeatherIcon(weatherId) {
