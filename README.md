@@ -1,79 +1,148 @@
-# Weather Dashboard Project
+# 🌦️ Weather Dashboard
 
-This project consists of a web-based Weather Dashboard and a Python script for daily weather text updates.
+A modern, responsive weather dashboard application built with vanilla JavaScript and the OpenWeatherMap API. Features a beautiful glassmorphism design, real-time weather updates, and interactive forecasts.
 
-## Features
+## ✨ Features
 
-- Web-based Weather Dashboard with current weather, 5-day forecast, and weather trend charts
-- Daily weather text updates via SMS
+- **Real-time Weather Data**
+  - Current weather conditions with detailed metrics
+  - Interactive 5-day weather forecast carousel
+  - Dynamic weather trend charts
+  - Temperature, humidity, and wind information
 
-## Project Structure
+- **Modern UI/UX**
+  - Sleek glassmorphism design
+  - Responsive layout for all devices
+  - Smooth animations and transitions
+  - Interactive forecast carousel with touch support
+  - Dynamic weather icons
+
+- **Technical Features**
+  - Pure vanilla JavaScript (no frameworks)
+  - OpenWeatherMap API integration
+  - Chart.js for weather trends
+  - GSAP for smooth animations
+  - Responsive CSS with modern features
+
+## 🚀 Quick Start
+
+### Prerequisites
+
+- Modern web browser
+- OpenWeatherMap API key
+- Basic understanding of HTML/CSS/JavaScript
+
+### Installation
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/MaVeN-13TTN/Weather_Dashboard.git
+   cd Weather_Dashboard
+   ```
+
+2. Configure your API key:
+   - Sign up for an API key at [OpenWeatherMap](https://openweathermap.org/api)
+   - Create `web/js/config.js` with your API key:
+     ```javascript
+     const weatherDashboardConfig = {
+       OWM_API_KEY: 'your_api_key_here',
+       DEFAULT_CITY: 'Nairobi'
+     };
+     ```
+
+3. Open `web/index.html` in your browser or use a local server:
+   ```bash
+   # Using Python
+   python -m http.server 8000
+   # Then visit http://localhost:8000/web/
+   ```
+
+## 🎯 Usage
+
+1. **View Weather Information**
+   - Enter a city name in the search bar
+   - Press Enter or click the search icon
+   - View current weather conditions
+
+2. **Explore Forecast**
+   - Scroll through the 5-day forecast using:
+     - Arrow buttons
+     - Touch/mouse drag
+     - Keyboard arrows
+
+3. **Customize Display**
+   - Toggle between °C and °F
+   - View different weather metrics
+   - Interact with weather trend charts
+
+## 🛠️ Project Structure
 
 ```
-weather-dashboard/
-│
-├── web/
-│   ├── index.html
-│   ├── css/
-│   │   └── styles.css
-│   └── js/
-│       ├── config.js
-│       └── app.js
-│
-├── scripts/
-│   └── daily_weather_text.py
-│
-├── README.md
-├── requirements.txt
-├── .env
-└── .gitignore
+Weather_Dashboard/
+├── web/                    # Web application files
+│   ├── assets/            # Images and icons
+│   │   └── favicon/       # Favicon files
+│   ├── css/              # Stylesheets
+│   │   └── styles.css    # Main CSS file
+│   ├── js/               # JavaScript files
+│   │   ├── app.js       # Main application logic
+│   │   └── config.js    # Configuration (API keys)
+│   └── index.html       # Main HTML file
+└── README.md             # Documentation
 ```
 
-## Setup
+## 🎨 Customization
 
-1. Clone this repository.
-2. Create a `.env` file in the root directory and add your API keys and settings (see `.env` section below).
-3. Install the required Python packages:
-   ```
-   pip install -r requirements.txt
-   ```
-4. Update `web/js/config.js` with your OpenWeatherMap API key.
-
-## Usage
-
-### Web Dashboard
-
-1. Open `web/index.html` in a web browser.
-2. Enter a city name and click "Get Weather" to see the weather information.
-
-### Daily Weather Text
-
-1. Run the Python script:
-   ```
-   python scripts/daily_weather_text.py
-   ```
-2. The script will send a weather update text message every day at 8:00 AM.
-
-## .env File
-
-Create a `.env` file in the root directory with the following content:
-
-```
-OWM_API_KEY=your_openweathermap_api_key
-TWILIO_ACCOUNT_SID=your_twilio_account_sid
-TWILIO_AUTH_TOKEN=your_twilio_auth_token
-TWILIO_PHONE_NUMBER=your_twilio_phone_number
-USER_CITY=your_city
-USER_PHONE_NUMBER=your_phone_number
-UNITS=metric
+### Theme Colors
+Modify the color scheme in `web/css/styles.css`:
+```css
+:root {
+    --background: #0f1729;
+    --glass-bg: rgba(255, 255, 255, 0.1);
+    --glass-border: rgba(255, 255, 255, 0.2);
+    --text-color: #ffffff;
+    /* ... other color variables */
+}
 ```
 
-Replace the placeholder values with your actual API keys and preferences.
+### Weather Icons
+The dashboard uses Font Awesome 6 icons. Customize icons in `web/js/app.js`:
+```javascript
+const weatherIcons = {
+    2: "bolt",            // Thunderstorm
+    3: "cloud-rain",      // Drizzle
+    5: "cloud-showers-heavy", // Rain
+    // ... other weather conditions
+};
+```
 
-## Contributing
+## 📱 Mobile Support
 
-Feel free to fork this project and submit pull requests with any improvements or bug fixes.
+The dashboard is fully responsive and tested on:
+- Mobile phones (Android & iOS)
+- Tablets
+- Desktop browsers (Chrome, Firefox, Safari, Edge)
 
-## License
+Features like touch support and mobile-optimized layouts ensure a great experience across all devices.
 
-This project is open source and available under the MIT License.
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- Weather data provided by [OpenWeatherMap](https://openweathermap.org/)
+- Icons by [Font Awesome](https://fontawesome.com/)
+- Charts powered by [Chart.js](https://www.chartjs.org/)
+- Animations by [GSAP](https://greensock.com/gsap/)
+
+---
+Created with ❤️ by [MaVeN-13TTN](https://github.com/MaVeN-13TTN)
