@@ -1,6 +1,6 @@
 # 🌦️ Weather Dashboard
 
-A modern, responsive weather dashboard application built with vanilla JavaScript and the OpenWeatherMap API. Features a beautiful glassmorphism design, real-time weather updates, and interactive forecasts.
+A modern, responsive weather dashboard application with both frontend and backend components. The frontend is built with vanilla JavaScript and OpenWeatherMap API featuring a beautiful glassmorphism design, while the backend provides automated SMS weather notifications using Python and Twilio.
 
 ## ✨ Features
 
@@ -18,47 +18,68 @@ A modern, responsive weather dashboard application built with vanilla JavaScript
   - Dynamic weather icons
 
 - **Technical Features**
-  - Pure vanilla JavaScript (no frameworks)
+  - Pure vanilla JavaScript frontend
   - OpenWeatherMap API integration
   - Chart.js for weather trends
   - GSAP for smooth animations
   - Responsive CSS with modern features
 
+- **Backend Features**
+  - Automated daily weather notifications via SMS
+  - Python-based weather data processing
+  - Twilio integration for SMS delivery
+  - Configurable notification schedules
+  - Customizable weather alerts
+
 ## 🚀 Quick Start
 
 ### Prerequisites
 
+Frontend:
 - Modern web browser
 - OpenWeatherMap API key
 - Basic understanding of HTML/CSS/JavaScript
+
+Backend:
+- Python 3.8 or higher
+- Twilio account and API credentials
+- OpenWeatherMap API key
 
 ### Installation
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/MaVeN-13TTN/Weather_Dashboard.git
+   git clone https://github.com/MaVeN-13TTN/Weather_Dashboard
    cd Weather_Dashboard
    ```
 
-2. Configure your API key:
-   - Sign up for an API key at [OpenWeatherMap](https://openweathermap.org/api)
+2. Frontend Setup:
    - Create `web/js/config.js` with your API key:
      ```javascript
      const weatherDashboardConfig = {
-       OWM_API_KEY: 'your_api_key_here',
-       DEFAULT_CITY: 'Nairobi'
+       OWM_API_KEY: 'your_api_key_here'
      };
      ```
 
-3. Open `web/index.html` in your browser or use a local server:
-   ```bash
-   # Using Python
-   python -m http.server 8000
-   # Then visit http://localhost:8000/web/
-   ```
+3. Backend Setup:
+   - Install Python dependencies:
+     ```bash
+     pip install -r requirements.txt
+     ```
+   - Create `.env` file in the scripts directory:
+     ```env
+     OWM_API_KEY=your_openweathermap_api_key
+     TWILIO_ACCOUNT_SID=your_twilio_account_sid
+     TWILIO_AUTH_TOKEN=your_twilio_auth_token
+     TWILIO_PHONE_NUMBER=your_twilio_phone_number
+     USER_CITY=your_city
+     USER_PHONE_NUMBER=your_phone_number
+     UNITS=metric
+     ```
 
 ## 🎯 Usage
 
+### Frontend Dashboard
 1. **View Weather Information**
    - Enter a city name in the search bar
    - Press Enter or click the search icon
@@ -75,20 +96,40 @@ A modern, responsive weather dashboard application built with vanilla JavaScript
    - View different weather metrics
    - Interact with weather trend charts
 
+### Backend Services
+1. **SMS Weather Updates**
+   - Configure your settings in `.env`
+   - Run the notification script:
+     ```bash
+     python scripts/daily_weather_text.py
+     ```
+   - Receive daily weather updates at configured time
+
+2. **Testing SMS Service**
+   - Test the SMS functionality:
+     ```bash
+     python scripts/test_weather_sms.py
+     ```
+
 ## 🛠️ Project Structure
 
 ```
 Weather_Dashboard/
-├── web/                    # Web application files
+├── web/                    # Frontend files
 │   ├── assets/            # Images and icons
 │   │   └── favicon/       # Favicon files
 │   ├── css/              # Stylesheets
 │   │   └── styles.css    # Main CSS file
 │   ├── js/               # JavaScript files
 │   │   ├── app.js       # Main application logic
-│   │   └── config.js    # Configuration (API keys)
+│   │   └── config.js    # Configuration
 │   └── index.html       # Main HTML file
-└── README.md             # Documentation
+├── scripts/              # Backend Python scripts
+│   ├── daily_weather_text.py    # SMS notification service
+│   ├── test_weather_sms.py      # SMS testing utility
+│   └── trial_weather_text.py    # Development testing
+├── requirements.txt      # Python dependencies
+└── README.md            # Documentation
 ```
 
 ## 🎨 Customization
@@ -143,6 +184,33 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - Icons by [Font Awesome](https://fontawesome.com/)
 - Charts powered by [Chart.js](https://www.chartjs.org/)
 - Animations by [GSAP](https://greensock.com/gsap/)
+- SMS notifications powered by [Twilio](https://www.twilio.com/)
+
+## 🔑 API Keys and Configuration
+
+This project requires the following API keys:
+- **OpenWeatherMap API**: For weather data (both frontend and backend)
+- **Twilio API**: For SMS notifications (backend only)
+
+### Frontend Configuration
+Update `web/js/config.js`:
+```javascript
+const weatherDashboardConfig = {
+  OWM_API_KEY: 'your_key_here'
+};
+```
+
+### Backend Configuration
+Create `.env` in the scripts directory:
+```env
+OWM_API_KEY=your_openweathermap_api_key
+TWILIO_ACCOUNT_SID=your_twilio_sid
+TWILIO_AUTH_TOKEN=your_twilio_token
+TWILIO_PHONE_NUMBER=your_twilio_number
+USER_PHONE_NUMBER=your_phone_number
+USER_CITY=your_city
+UNITS=metric
+```
 
 ---
 Created with ❤️ by [MaVeN-13TTN](https://github.com/MaVeN-13TTN)
